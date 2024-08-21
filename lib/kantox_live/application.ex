@@ -4,14 +4,24 @@ defmodule SuperMarkex.Application do
   @moduledoc false
 
   use Application
+  require Logger
 
   @impl true
   def start(_type, _args) do
+    case SuperMarkex.ProductStore.init() do
+      :ok ->
+        Logger.info("ProductStore initialized successfully")
+
+      {:error, reason} ->
+        Logger.warning(
+          "Failed to initialize ProductStore: #{inspect(reason)}. Continuing with empty store."
+        )
+    end
+
     children = [
       SuperMarkexWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:kantox_live, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: SuperMarkex.PubSub},
-      SuperMarkex.ProductStore,
       SuperMarkexWeb.Endpoint
     ]
 
