@@ -1,5 +1,5 @@
 defmodule SuperMarkex.CashierTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias SuperMarkex.Cashier
 
   describe "calculate_total/1" do
