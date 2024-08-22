@@ -8,7 +8,7 @@ defmodule SuperMarkex.Application do
 
   @impl true
   def start(_type, _args) do
-    case SuperMarkex.ProductStore.init() do
+    case SuperMarkex.Warehouse.initialize_store() do
       :ok ->
         Logger.info("ProductStore initialized successfully")
 

@@ -1,5 +1,5 @@
-defmodule SuperMarkex.ProductStore do
-  alias SuperMarkex.Product
+defmodule SuperMarkex.Warehouse.ProductStore do
+  alias SuperMarkex.Warehouse.Product
   require Logger
 
   @ets_table_name :product_store
@@ -26,9 +26,8 @@ defmodule SuperMarkex.ProductStore do
     end
   end
 
-  def reset do
-    :ets.delete_all_objects(@ets_table_name)
-  end
+  def list_all, do: :ets.tab2list(@ets_table_name)
+  def reset, do: :ets.delete_all_objects(@ets_table_name)
 
   defp load_from_csv(csv_file) do
     csv_path = Path.join(:code.priv_dir(:kantox_live), csv_file)

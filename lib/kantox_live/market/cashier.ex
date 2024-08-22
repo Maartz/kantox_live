@@ -1,5 +1,5 @@
-defmodule SuperMarkex.Cashier do
-  alias SuperMarkex.{Product, ProductStore}
+defmodule SuperMarkex.Market.Cashier do
+  alias SuperMarkex.Warehouse.{Product, ProductStore}
   require Logger
 
   # TODO: maybe worth extracting into some config injected at application start

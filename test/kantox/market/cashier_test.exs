@@ -1,6 +1,6 @@
 defmodule SuperMarkex.CashierTest do
   use ExUnit.Case, async: true
-  alias SuperMarkex.Cashier
+  alias SuperMarkex.Market.Cashier
 
   describe "calculate_total/1" do
     test "calculates total price for basket: GR1,SR1,GR1,GR1,CF1" do

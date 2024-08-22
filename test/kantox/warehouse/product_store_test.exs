@@ -1,6 +1,6 @@
-defmodule SuperMarkex.ProductStoreTest do
+defmodule SuperMarkex.Warehouse.ProductStoreTest do
   use ExUnit.Case
-  alias SuperMarkex.{ProductStore, Product}
+  alias SuperMarkex.Warehouse.{Product, ProductStore}
   require Logger
 
   @moduletag :capture_log
@@ -60,4 +60,3 @@ defmodule SuperMarkex.ProductStoreTest do
     assert result == {:error, :csv_not_found}
   end
 end
-
