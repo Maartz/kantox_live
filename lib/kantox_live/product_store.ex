@@ -1,4 +1,5 @@
 defmodule SuperMarkex.ProductStore do
+  alias SuperMarkex.Product
   require Logger
 
   @ets_table_name :product_store
@@ -20,7 +21,7 @@ defmodule SuperMarkex.ProductStore do
 
   def get_product(code) do
     case :ets.lookup(@ets_table_name, code) do
-      [{^code, name, price}] -> {:ok, %{code: code, name: name, price: price}}
+      [{^code, product}] -> {:ok, product}
       [] -> {:error, :not_found}
     end
   end
@@ -41,7 +42,8 @@ defmodule SuperMarkex.ProductStore do
         |> Enum.each(fn row ->
           case row do
             %{"Product code" => code, "Name" => name, "Price" => price} ->
-              :ets.insert(@ets_table_name, {code, name, Decimal.new(price)})
+              product = Product.new(code, name, price)
+              :ets.insert(@ets_table_name, {code, product})
 
             _ ->
               Logger.warning("Skipping invalid row: #{inspect(row)}")
@@ -65,4 +67,3 @@ defmodule SuperMarkex.ProductStore do
     end
   end
 end
-

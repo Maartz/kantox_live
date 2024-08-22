@@ -1,6 +1,6 @@
 defmodule SuperMarkex.ProductStoreTest do
   use ExUnit.Case
-  alias SuperMarkex.ProductStore
+  alias SuperMarkex.{ProductStore, Product}
   require Logger
 
   @moduletag :capture_log
@@ -16,24 +16,26 @@ defmodule SuperMarkex.ProductStoreTest do
   test "init/1 loads data from CSV" do
     assert :ok = ProductStore.init()
 
-    assert {:ok, %{code: "GR1", name: "Green tea", price: price}} =
+    assert {:ok, %Product{code: "GR1", name: "Green tea", price: price}} =
              ProductStore.get_product("GR1")
 
     assert Decimal.equal?(price, Decimal.new("3.11"))
 
-    assert {:ok, %{code: "SR1", name: "Strawberries", price: price}} =
+    assert {:ok, %Product{code: "SR1", name: "Strawberries", price: price}} =
              ProductStore.get_product("SR1")
 
     assert Decimal.equal?(price, Decimal.new("5.00"))
 
-    assert {:ok, %{code: "CF1", name: "Coffee", price: price}} = ProductStore.get_product("CF1")
+    assert {:ok, %Product{code: "CF1", name: "Coffee", price: price}} =
+             ProductStore.get_product("CF1")
+
     assert Decimal.equal?(price, Decimal.new("11.23"))
   end
 
   test "get_product/1 returns product when it exists" do
     ProductStore.init()
 
-    assert {:ok, %{code: "GR1", name: "Green tea", price: price}} =
+    assert {:ok, %Product{code: "GR1", name: "Green tea", price: price}} =
              ProductStore.get_product("GR1")
 
     assert Decimal.equal?(price, Decimal.new("3.11"))
