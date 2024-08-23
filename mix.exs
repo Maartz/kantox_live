@@ -53,7 +53,8 @@ defmodule SuperMarkex.MixProject do
       {:bandit, "~> 1.2"},
       {:csv, "~> 2.4"},
       {:decimal, "~> 2.0"},
-      {:uuid, "~> 1.1"}
+      {:uuid, "~> 1.1"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 
