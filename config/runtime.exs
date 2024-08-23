@@ -16,8 +16,8 @@ import Config
 #
 # Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
 # script that automatically sets the env var above.
-if System.get_env("PHX_SERVER") do
-  config :kantox_live, SuperMarkexWeb.Endpoint, server: true
+if System.get_env("PHX_SERVER") && System.get_env("RELEASE_NAME") do
+  config :render_deploy, RenderDeployWeb.Endpoint, server: true
 end
 
 if config_env() == :prod do
