@@ -137,4 +137,3 @@ defmodule SuperMarkexWeb.CartLive.Index do
     """
   end
 end
-

@@ -1,4 +1,9 @@
 defmodule SuperMarkex.Market.CartSupervisorTest do
+  # fixme: have to find out a better way to handle seamlessly this 
+  # as I've to workaround in order to make all the tests pass 
+  # if you remove the sleep, you sometimes got the cart still existing 
+  # because it was not yet remove when I make the assertion.
+
   use ExUnit.Case, async: true
   doctest SuperMarkex.Market.CartSupervisor
   alias SuperMarkex.Market.CartSupervisor
@@ -26,10 +31,6 @@ defmodule SuperMarkex.Market.CartSupervisorTest do
     test "stops an existing cart process" do
       {:ok, _} = CartSupervisor.start_cart("cart_to_stop")
       assert :ok = CartSupervisor.stop_cart("cart_to_stop")
-      # FIXME: have to find out a better way to handle seamlessly this 
-      # as I've to workaround in order to make all the tests pass 
-      # if you remove the sleep, you sometimes got the cart still existing 
-      # because it was not yet remove when I make the assertion.
       Process.sleep(10)
       assert [] = Registry.lookup(SuperMarkex.CartRegistry, "cart_to_stop")
     end

@@ -74,4 +74,3 @@ defmodule SuperMarkex.Market.CartSupervisor do
     end
   end
 end
-

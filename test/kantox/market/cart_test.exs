@@ -54,4 +54,3 @@ defmodule SuperMarkex.Market.CartTest do
     end
   end
 end
-
