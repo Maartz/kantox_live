@@ -5,25 +5,32 @@ defmodule SuperMarkexWeb.CartLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, carts: %{}, products: Warehouse.list_products())}
+    {:ok, assign(socket, cart_ids: [], carts: %{}, products: Warehouse.list_products())}
   end
 
   @impl true
   def handle_event("create-cart", _params, socket) do
     {:ok, cart_id} = Market.create_cart()
+    new_cart = %{items: %{}, total: Decimal.new(0)}
 
-    {:noreply,
-     update(
-       socket,
-       :carts,
-       &Map.put(&1, cart_id, %{items: %{}, total: Decimal.new(0)})
-     )}
+    socket =
+      socket
+      |> update(:cart_ids, fn ids -> ids ++ [cart_id] end)
+      |> update(:carts, &Map.put(&1, cart_id, new_cart))
+
+    {:noreply, socket}
   end
 
   @impl true
   def handle_event("delete-cart", %{"id" => cart_id}, socket) do
     Market.clear_cart(cart_id)
-    {:noreply, update(socket, :carts, &Map.delete(&1, cart_id))}
+
+    socket =
+      socket
+      |> update(:cart_ids, &List.delete(&1, cart_id))
+      |> update(:carts, &Map.delete(&1, cart_id))
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -40,12 +47,14 @@ defmodule SuperMarkexWeb.CartLive.Index do
     new_items = Market.get_cart_contents(cart_id)
     new_total = Market.calculate_cart_total(cart_id)
 
-    {:noreply,
-     update(socket, :carts, fn carts ->
-       Map.update!(carts, cart_id, fn cart ->
-         %{cart | items: new_items, total: new_total}
-       end)
-     end)}
+    socket =
+      update(socket, :carts, fn carts ->
+        Map.update!(carts, cart_id, fn cart ->
+          %{cart | items: new_items, total: new_total}
+        end)
+      end)
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -60,7 +69,8 @@ defmodule SuperMarkexWeb.CartLive.Index do
         Create New Cart
       </button>
       <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
-        <%= for {cart_id, cart} <- @carts do %>
+        <%= for cart_id <- @cart_ids do %>
+          <% cart = @carts[cart_id] %>
           <div class="cart bg-white shadow-lg rounded-lg p-6">
             <div class="flex justify-between items-center mb-4">
               <h2 class="text-xl font-semibold">Cart <%= cart_id %></h2>
@@ -117,7 +127,7 @@ defmodule SuperMarkexWeb.CartLive.Index do
             <div class="cart-total text-right mb-4">
               <span class="font-bold">Total:</span>
               <span class="text-lg text-green-600 ml-2">
-                £<%= Decimal.round(cart.total, 2) |> Decimal.to_string() %>
+                <%= Decimal.round(cart.total, 2) |> Decimal.to_string() %>
               </span>
             </div>
           </div>
