@@ -5,7 +5,7 @@ import Config
 config :kantox_live, SuperMarkexWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "Ip7wMTWM3Z1ktz/fJUOsHQDrXRazveDDZlxLelyaAMD5MH7ipj6D7vHXp7GclzOC",
-  server: false
+  server: true
 
 # Print only warnings and errors during test
 config :logger, level: :warning
