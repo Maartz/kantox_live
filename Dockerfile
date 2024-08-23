@@ -1,6 +1,6 @@
-FROM hexpm/elixir:1.13.0-erlang-23.3.4.10-alpine-3.14.3 AS base
+FROM hexpm/elixir:1.14.5-erlang-24.2.2-alpine-3.18.8 AS base
 
-WORKDIR /render
+WORKDIR /kantox_live
 
 RUN mix do local.hex --force, local.rebar --force
 
@@ -33,12 +33,12 @@ RUN mix release
 # -----------------
 FROM alpine:3.14.3
 
-WORKDIR /render
+WORKDIR /kantox_live
 
 ARG MIX_ENV=prod
 
 RUN apk add ncurses-libs curl
 
-COPY --from=release /render/_build/$MIX_ENV/rel/render ./
+COPY --from=release /kantox_live/_build/$MIX_ENV/rel/kantox_live ./
 
-CMD ["bin/render", "start"]
+CMD ["bin/kantox_live", "start"]
