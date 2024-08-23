@@ -1,0 +1,13 @@
+{
+  "skip_files": [
+    "lib/kantox_live.ex",
+    "lib/kantox_live_web.ex",
+    "lib/kantox_live_web/controllers/",
+    "lib/kantox_live_web/components/",
+    "lib/kantox_live_web/router.ex",
+    "lib/kantox_live_web/telemetry.ex",
+    "lib/kantox_live_web/endpoint.ex",
+    "lib/kantox_live/application.ex",
+    "test/"
+  ]
+}
