@@ -2,6 +2,16 @@ defmodule SuperMarkex.CashierTest do
   use ExUnit.Case, async: true
   alias SuperMarkex.Market.Cashier
 
+  setup do
+    Application.put_env(:kantox_live, :pricing_rules, [
+      {"GR1", :buy_one_get_one_free},
+      {"SR1", {:bulk_discount, 3, "4.50"}},
+      {"CF1", {:bulk_discount_percentage, 3, "0.6667"}}
+    ])
+
+    :ok
+  end
+
   describe "calculate_total/1" do
     test "calculates total price for basket: GR1,SR1,GR1,GR1,CF1" do
       basket = ["GR1", "SR1", "GR1", "GR1", "CF1"]

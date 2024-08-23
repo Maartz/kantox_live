@@ -9,13 +9,6 @@ defmodule SuperMarkex.Market.Cashier do
   alias SuperMarkex.Warehouse.{Product, ProductStore}
   require Logger
 
-  # TODO: maybe worth extracting into some config injected at application start
-  @rules [
-    {"GR1", :buy_one_get_one_free},
-    {"SR1", {:bulk_discount, 3, Decimal.new("4.50")}},
-    {"CF1", {:bulk_discount_percentage, 3, Decimal.new("0.6667")}}
-  ]
-
   @doc """
   Calculates the total price for a given basket of products.
 
@@ -68,7 +61,10 @@ defmodule SuperMarkex.Market.Cashier do
   @doc false
   @spec find_rule(String.t()) :: {String.t(), any()}
   defp find_rule(product_code) do
-    Enum.find(@rules, {product_code, :regular_price}, fn {code, _rule} -> code == product_code end)
+    Application.get_env(:kantox_live, :pricing_rules, [])
+    |> Enum.find({product_code, :regular_price}, fn {code, _rule} ->
+      code == product_code
+    end)
   end
 
   @doc false

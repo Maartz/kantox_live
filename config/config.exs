@@ -6,6 +6,7 @@
 
 # General application configuration
 import Config
+import_config "pricing_rules.exs"
 
 config :kantox_live,
   namespace: SuperMarkex,
