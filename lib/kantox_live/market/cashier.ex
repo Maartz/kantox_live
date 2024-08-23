@@ -1,4 +1,11 @@
 defmodule SuperMarkex.Market.Cashier do
+  @moduledoc """
+  The Cashier module handles the calculation of total prices for shopping baskets,
+  applying various pricing rules and discounts.
+
+  It uses a set of predefined rules for special pricing and discounts on specific products.
+  """
+
   alias SuperMarkex.Warehouse.{Product, ProductStore}
   require Logger
 
@@ -9,93 +16,103 @@ defmodule SuperMarkex.Market.Cashier do
     {"CF1", {:bulk_discount_percentage, 3, Decimal.new("0.6667")}}
   ]
 
-  def calculate_total(basket) do
-    Logger.debug("Calculating total for basket: #{inspect(basket)}")
+  @doc """
+  Calculates the total price for a given basket of products.
 
+  This function applies the appropriate pricing rules and discounts to each product
+  in the basket and returns the total price.
+
+  ## Parameters
+
+    * `basket` - A list of product codes representing the items in the basket.
+
+  ## Returns
+
+    A `Decimal` representing the total price of the basket after applying all rules and discounts.
+
+  ## Examples
+
+      iex> SuperMarkex.Market.Cashier.calculate_total(["GR1", "SR1", "GR1", "GR1", "CF1"])
+      Decimal.new("22.45")
+
+  """
+  @spec calculate_total([String.t()]) :: Decimal.t()
+  def calculate_total(basket) do
     total =
       basket
       |> Enum.group_by(& &1)
       |> Enum.map(fn {product_code, items} ->
         quantity = length(items)
         subtotal = calculate_product_total(product_code, quantity)
-        Logger.debug("Subtotal for #{product_code} (quantity: #{quantity}): #{inspect(subtotal)}")
         subtotal
       end)
       |> Enum.reduce(Decimal.new(0), &Decimal.add/2)
       |> Decimal.round(2)
 
-    Logger.debug("Total calculated: #{inspect(total)}")
     total
   end
 
+  @doc false
+  @spec calculate_product_total(String.t(), non_neg_integer()) :: Decimal.t()
   defp calculate_product_total(product_code, quantity) do
-    Logger.debug("Calculating total for product: #{product_code}, quantity: #{quantity}")
-
     with {:ok, %Product{} = product} <- ProductStore.get_product(product_code),
          {_, rule} <- find_rule(product_code) do
-      Logger.debug("Product found: #{inspect(product)}, Rule: #{inspect(rule)}")
       total = apply_rule(rule, product, quantity)
-      Logger.debug("Total for #{product_code}: #{inspect(total)}")
       total
     else
-      error ->
-        Logger.error("Error calculating product total: #{inspect(error)}")
+      _ ->
         Decimal.new(0)
     end
   end
 
+  @doc false
+  @spec find_rule(String.t()) :: {String.t(), any()}
   defp find_rule(product_code) do
     Enum.find(@rules, {product_code, :regular_price}, fn {code, _rule} -> code == product_code end)
   end
 
+  @doc false
+  @spec apply_rule(:buy_one_get_one_free, Product.t(), non_neg_integer()) :: Decimal.t()
+  @spec apply_rule(
+          {:bulk_discount, non_neg_integer(), Decimal.t()},
+          Product.t(),
+          non_neg_integer()
+        ) :: Decimal.t()
+  @spec apply_rule(
+          {:bulk_discount_percentage, non_neg_integer(), Decimal.t()},
+          Product.t(),
+          non_neg_integer()
+        ) :: Decimal.t()
+  @spec apply_rule(:regular_price, Product.t(), non_neg_integer()) :: Decimal.t()
+  @spec apply_rule(any(), Product.t(), non_neg_integer()) :: Decimal.t()
   defp apply_rule(:buy_one_get_one_free, %Product{price: price}, quantity) do
-    Logger.debug(
-      "Applying buy-one-get-one-free rule. Price: #{inspect(price)}, Quantity: #{quantity}"
-    )
-
-    total = Decimal.mult(price, Decimal.new(ceil(quantity / 2)))
-    Logger.debug("Buy-one-get-one-free total: #{inspect(total)}")
-    total
+    Decimal.mult(price, Decimal.new(ceil(quantity / 2)))
   end
 
+  @doc false
   defp apply_rule({:bulk_discount, min_quantity, discounted_price}, _product, quantity)
        when quantity >= min_quantity do
-    Logger.debug(
-      "Applying bulk discount rule. Discounted price: #{inspect(discounted_price)}, Quantity: #{quantity}"
-    )
-
-    total = Decimal.mult(discounted_price, Decimal.new(quantity))
-    Logger.debug("Bulk discount total: #{inspect(total)}")
-    total
+    Decimal.mult(discounted_price, Decimal.new(quantity))
   end
 
+  @doc false
   defp apply_rule(
          {:bulk_discount_percentage, min_quantity, discount_factor},
          %Product{price: price},
          quantity
        )
        when quantity >= min_quantity do
-    Logger.debug(
-      "Applying bulk discount percentage rule. Price: #{inspect(price)}, Discount factor: #{inspect(discount_factor)}, Quantity: #{quantity}"
-    )
-
-    discounted_price = Decimal.mult(price, discount_factor)
-    total = Decimal.mult(discounted_price, Decimal.new(quantity))
-    Logger.debug("Bulk discount percentage total: #{inspect(total)}")
-    total
+    Decimal.mult(price, discount_factor)
+    |> Decimal.mult(Decimal.new(quantity))
   end
 
+  @doc false
   defp apply_rule(:regular_price, %Product{price: price}, quantity) do
-    Logger.debug("Applying regular price rule. Price: #{inspect(price)}, Quantity: #{quantity}")
-    total = Decimal.mult(price, Decimal.new(quantity))
-    Logger.debug("Regular price total: #{inspect(total)}")
-    total
+    Decimal.mult(price, Decimal.new(quantity))
   end
 
+  @doc false
   defp apply_rule(_, %Product{price: price}, quantity) do
-    Logger.debug("Applying default rule. Price: #{inspect(price)}, Quantity: #{quantity}")
-    total = Decimal.mult(price, Decimal.new(quantity))
-    Logger.debug("Default rule total: #{inspect(total)}")
-    total
+    Decimal.mult(price, Decimal.new(quantity))
   end
 end

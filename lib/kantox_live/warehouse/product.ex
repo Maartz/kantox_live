@@ -27,6 +27,7 @@ defmodule SuperMarkex.Warehouse.Product do
       %SuperMarkex.Warehouse.Product{code: "SR1", name: "Strawberries", price: Decimal.new("5.00")}
 
   """
+  @spec new(String.t(), String.t(), Decimal.t()) :: t()
   def new(code, name, price) when is_binary(code) and is_binary(name) do
     %__MODULE__{
       code: code,
