@@ -127,7 +127,7 @@ defmodule SuperMarkexWeb.CartLive.Index do
             <div class="cart-total text-right mb-4">
               <span class="font-bold">Total:</span>
               <span class="text-lg text-green-600 ml-2">
-                <%= Decimal.round(cart.total, 2) |> Decimal.to_string() %>
+                £<%= Decimal.round(cart.total, 2) |> Decimal.to_string() %>
               </span>
             </div>
           </div>

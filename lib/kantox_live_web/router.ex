@@ -17,7 +17,7 @@ defmodule SuperMarkexWeb.Router do
   scope "/", SuperMarkexWeb do
     pipe_through :browser
 
-    live "/", CartLive.Index, :index
+    live "/", CartLive.Index
   end
 
   # Other scopes may use custom stacks.
