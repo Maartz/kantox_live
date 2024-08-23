@@ -3,6 +3,11 @@ defmodule SuperMarkex.Market.CartTest do
   alias SuperMarkex.Market
   alias SuperMarkex.Warehouse
 
+  setup do
+    Warehouse.initialize_store()
+    :ok
+  end
+
   describe "cart operations" do
     setup do
       {:ok, cart_id} = Market.create_cart()
@@ -49,3 +54,4 @@ defmodule SuperMarkex.Market.CartTest do
     end
   end
 end
+
