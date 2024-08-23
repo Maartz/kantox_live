@@ -52,7 +52,8 @@ defmodule SuperMarkex.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.2"},
       {:csv, "~> 2.4"},
-      {:decimal, "~> 2.0"}
+      {:decimal, "~> 2.0"},
+      {:uuid, "~> 1.1"}
     ]
   end
 
