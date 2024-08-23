@@ -22,7 +22,9 @@ defmodule SuperMarkex.Application do
       SuperMarkexWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:kantox_live, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: SuperMarkex.PubSub},
-      SuperMarkexWeb.Endpoint
+      SuperMarkexWeb.Endpoint,
+      SuperMarkex.CartRegistry,
+      SuperMarkex.Market.CartSupervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
