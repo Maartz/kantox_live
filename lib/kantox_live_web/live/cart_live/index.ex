@@ -16,7 +16,7 @@ defmodule SuperMarkexWeb.CartLive.Index do
      update(
        socket,
        :carts,
-       &Map.put(&1, cart_id, %{items: %{}, total: Decimal.new(0) |> Decimal.to_string()})
+       &Map.put(&1, cart_id, %{items: %{}, total: Decimal.new(0)})
      )}
   end
 
@@ -27,8 +27,16 @@ defmodule SuperMarkexWeb.CartLive.Index do
   end
 
   @impl true
-  def handle_event("add-item", %{"cart-id" => cart_id, "product-code" => product_code}, socket) do
-    :ok = Market.add_to_cart(cart_id, product_code, 1)
+  def handle_event(
+        "adjust-quantity",
+        %{"cart-id" => cart_id, "product-code" => product_code, "action" => action},
+        socket
+      ) do
+    case action do
+      "increase" -> Market.add_to_cart(cart_id, product_code, 1)
+      "decrease" -> Market.remove_from_cart(cart_id, product_code, 1)
+    end
+
     new_items = Market.get_cart_contents(cart_id)
     new_total = Market.calculate_cart_total(cart_id)
 
@@ -78,37 +86,39 @@ defmodule SuperMarkexWeb.CartLive.Index do
               </button>
             </div>
             <div class="cart-items mb-4 space-y-2">
-              <%= if Enum.empty?(cart.items) do %>
-                <p class="text-gray-500 italic">Cart is empty</p>
-              <% else %>
-                <%= for {product_code, quantity} <- cart.items do %>
-                  <div class="flex justify-between items-center py-2 border-b">
-                    <span class="font-medium"><%= product_code %></span>
-                    <span class="bg-gray-200 rounded-full px-3 py-1 text-sm"><%= quantity %></span>
+              <%= for {product_code, product} <- @products do %>
+                <% quantity = Map.get(cart.items, product_code, 0) %>
+                <div class="flex justify-between items-center py-2 border-b">
+                  <span class="font-medium"><%= product.name %></span>
+                  <div class="flex items-center">
+                    <button
+                      phx-click="adjust-quantity"
+                      phx-value-cart-id={cart_id}
+                      phx-value-product-code={product_code}
+                      phx-value-action="decrease"
+                      class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-l"
+                    >
+                      -
+                    </button>
+                    <span class="bg-gray-200 px-3 py-1"><%= quantity %></span>
+                    <button
+                      phx-click="adjust-quantity"
+                      phx-value-cart-id={cart_id}
+                      phx-value-product-code={product_code}
+                      phx-value-action="increase"
+                      class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-r"
+                    >
+                      +
+                    </button>
                   </div>
-                <% end %>
+                </div>
               <% end %>
             </div>
             <div class="cart-total text-right mb-4">
               <span class="font-bold">Total:</span>
               <span class="text-lg text-green-600 ml-2">
-                <%= Decimal.round(cart.total, 2) |> Decimal.to_string() %>
+                £<%= Decimal.round(cart.total, 2) |> Decimal.to_string() %>
               </span>
-            </div>
-            <div class="add-items">
-              <h3 class="text-lg font-semibold mb-2">Add Items:</h3>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <%= for {product_code, product} <- @products do %>
-                  <button
-                    phx-click="add-item"
-                    phx-value-cart-id={cart_id}
-                    phx-value-product-code={product_code}
-                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-3 rounded text-sm w-full truncate"
-                  >
-                    Add <%= product.name %>
-                  </button>
-                <% end %>
-              </div>
             </div>
           </div>
         <% end %>
